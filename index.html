@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neoseoul Mixroom</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0c0c; --bg2:#141414; --ink:#f0ede8;
+  --sub:#666; --sub2:#888; --line:#252525;
+  --sans:'Syne',sans-serif; --mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-weight:300;font-size:13px;letter-spacing:.02em;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:22px 48px;background:rgba(12,12,12,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.logo{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:none;}
+.nav-right{display:flex;align-items:center;gap:40px;}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--sub);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--ink);}
+
+/* HERO */
+.hero{padding:160px 48px 96px;border-bottom:1px solid var(--line);}
+.hero h1{font-family:var(--sans);font-size:clamp(48px,6.5vw,88px);font-weight:700;line-height:.98;letter-spacing:-.03em;margin-bottom:32px;}
+.hero-desc{font-size:13px;color:var(--sub2);line-height:1.85;max-width:480px;}
+
+/* SECTIONS */
+section{padding:96px 48px;border-bottom:1px solid var(--line);}
+.sec-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:56px;}
+.sec-num{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--sub);}
+.sec-title{font-family:var(--sans);font-size:clamp(30px,4vw,50px);font-weight:700;letter-spacing:-.03em;}
+
+/* PORTFOLIO TABS */
+.portfolio-tabs{display:flex;margin-bottom:32px;border-bottom:1px solid var(--line);}
+.ptab{background:none;border:none;padding:12px 24px 12px 0;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;}
+.ptab:hover{color:var(--ink);}
+.ptab.active{color:var(--ink);border-bottom-color:var(--ink);}
+
+/* ALBUM GRID */
+.album-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
+.album-card{cursor:pointer;transition:transform .3s;}
+.album-card:hover{transform:translateY(-4px);}
+.album-card:hover .album-hover{opacity:1;}
+.album-cover{width:100%;padding-bottom:100%;position:relative;background:var(--bg2);border:1px solid var(--line);overflow:hidden;}
+.album-cover img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
+.album-hover{position:absolute;inset:0;background:rgba(0,0,0,.72);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;opacity:0;transition:opacity .25s;}
+.album-hover-title{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.album-hover-credit{font-size:10px;color:var(--sub2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* SKELETON */
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
+.skeleton-cover{width:100%;padding-bottom:100%;position:relative;background:var(--bg2);border:1px solid var(--line);animation:pulse 1.5s ease-in-out infinite;}
+
+/* EMPTY */
+.empty-state{grid-column:1/-1;padding:60px 0;font-size:12px;color:var(--sub);letter-spacing:.1em;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--line);width:90%;max-width:560px;max-height:88vh;overflow-y:auto;position:relative;}
+.modal-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer;transition:color .2s;z-index:1;}
+.modal-close:hover{color:var(--ink);}
+.modal-cover{width:100%;aspect-ratio:1;background:var(--bg);overflow:hidden;border-bottom:1px solid var(--line);position:relative;}
+.modal-cover img,.modal-cover video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
+.modal-body{padding:28px 32px 32px;}
+.modal-title{font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:16px;}
+.modal-credit{font-size:12px;color:var(--sub2);line-height:1.9;border-top:1px solid var(--line);padding-top:18px;white-space:pre-line;}
+
+/* PRICING */
+.price-table{width:100%;border-collapse:collapse;}
+.price-table tr{border-bottom:1px solid var(--line);}
+.price-table tr:first-child{border-top:1px solid var(--line);}
+.price-table tr:hover td{background:rgba(255,255,255,.02);}
+.price-table td{padding:24px 16px;vertical-align:top;}
+.td-name{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-.01em;width:220px;}
+.td-price{font-family:var(--sans);font-size:26px;font-weight:700;letter-spacing:-.03em;white-space:nowrap;width:160px;}
+.td-price .unit{font-size:14px;font-weight:400;color:var(--sub2);margin-left:2px;}
+.td-files-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);margin-bottom:10px;}
+.td-files{display:flex;flex-direction:column;gap:5px;}
+.td-file{font-size:11px;color:var(--sub2);line-height:1.5;}
+.td-note{font-size:11px;color:var(--sub);}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;}
+.contact-info h2{font-family:var(--sans);font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:24px;}
+.contact-info p{color:var(--sub2);line-height:1.85;max-width:360px;margin-bottom:40px;}
+.info-rows{display:flex;flex-direction:column;}
+.info-row{display:flex;gap:24px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);}
+.info-row:first-child{border-top:1px solid var(--line);}
+.info-key{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);width:90px;flex-shrink:0;}
+.info-val{font-size:12px;}
+.form{display:flex;flex-direction:column;gap:14px;}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub);}
+.fg input,.fg select,.fg textarea{background:var(--bg2);border:1px solid var(--line);padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--ink);outline:none;transition:border-color .2s;resize:none;appearance:none;-webkit-appearance:none;}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--sub);}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--sub2);}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:var(--bg2);padding-right:36px;}
+.btn-send{background:var(--ink);color:var(--bg);border:none;padding:14px 28px;font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;align-self:flex-start;}
+.btn-send:hover{opacity:.7;}
+
+/* FOOTER */
+footer{padding:32px 48px;display:flex;align-items:center;justify-content:space-between;}
+footer p{font-size:10px;color:var(--sub);letter-spacing:.08em;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:16px 20px;}
+  .nav-links{display:none;}
+  .hero{padding:120px 20px 64px;}
+  section{padding:64px 20px;}
+  .album-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .contact-grid{grid-template-columns:1fr;gap:48px;}
+  .form-2col{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:28px 20px;}
+}
+</style>
+
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">Neoseoul Mixroom</a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#portfolio">พอร์ตโฟลิโอ่</a>
+      <a href="#pricing">ราคาเเละรายละเอียด</a>
+      <a href="#contact">สอบถามข้อมูลเพิ่มเติมเกี่ยวกับโปรเจกต์</a>
+    </div>
+    </div>
+</nav>
+
+<div class="hero">
+  <h1>Mix &amp;<br>Mastering<br>Studio</h1>
+  <p class="hero-desc">มิกซ์ &amp; มาสเตอร์ระดับมืออาชีพ สำหรับศิลปินทั้งในเเละต่างประเทศ ยกระดับเสียงเพลงของคุณให้สมบูรณ์แบบ บนทุกแพลตฟอร์ม</p>
+</div>
+
+<section id="portfolio">
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <h2 class="sec-title">พอร์ตโฟลิโอ่</h2>
+  </div>
+  <div class="portfolio-tabs">
+    <button class="ptab active" id="ptab-music" onclick="switchTab('music')">
+      <span>เพลง</span>
+    </button>
+    <button class="ptab" id="ptab-commercial" onclick="switchTab('commercial')">
+      <span>เพลงประกอบโฆษณาเเละรายการ</span>
+    </button>
+  </div>
+  <div id="tab-music"><div class="album-grid" id="gridMusic"></div></div>
+  <div id="tab-commercial" style="display:none"><div class="album-grid" id="gridCommercial"></div></div>
+</section>
+
+<section id="pricing">
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <h2 class="sec-title">ราคาเเละรายละเอียด</h2>
+  </div>
+  <table class="price-table">
+    <tr>
+      <td class="td-name">มิกซ์ซิ่ง</td>
+      <td class="td-price"><span>฿18,000</span></td>
+      <td>
+        <div class="td-files-label">Deliverables</div>
+        <div class="td-files">
+          <div class="td-file">Mixed Acapella (STEM Files)</div>
+          <div class="td-file">Mixed Instrumental Multi Files</div>
+          <div class="td-file">Rough Limited Monitor AR</div>
+          <div class="td-file">Mixed AR for Mastering</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="td-name">มาสเตอร์ริ่ง</td>
+      <td class="td-price"><span>฿4,000</span></td>
+      <td>
+        <div class="td-files-label">Deliverables</div>
+        <div class="td-files">
+          <div class="td-file">Mastered AR</div>
+          <div class="td-file">Mastered INST</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="td-name">มิกซ์ซิ่ง+มาสเตอริ่ง</td>
+      <td class="td-price"><span>฿20,000</span></td>
+      <td>
+        <div class="td-files-label">Deliverables</div>
+        <div class="td-files">
+          <div class="td-file">Mixed Acapella (STEM Files)</div>
+          <div class="td-file">Mixed Instrumental (WAV / STEM Files)</div>
+          <div class="td-file">Mastered AR</div>
+          <div class="td-file">Mastered INST</div>
+          <div class="td-file">Live AR (50%, 70%)</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="td-name">โวคอลทูนนิ่ง</td>
+      <td class="td-price"><span>฿5,000~</span></td>
+      <td>
+        <div class="td-note">ตัวเลือกเพิ่มเติมที่สามารถเลือกได้เมื่อสั่งจ้างบริการมิกซ์เสียง</div>
+      </td>
+    </tr>
+  </table>
+</section>
+
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="sec-num" style="margin-bottom:20px">03</div>
+      <h2>สอบถามข้อมูลเพิ่มเติม<br>เกี่ยวกับโปรเจกต์</h2>
+      <p>ยินดีรับงานทุกรูปเเบบ การดำเนินงานจะเริ่มต้นหลังจากได้รับไฟล์เรียบร้อยแล้ว สำหรับการปรึกษาและแก้ไขงาน สามารถติดต่อได้ทางอีเมลหรือ KakaoTalk</p>
+      <div class="info-rows">
+        <div class="info-row">
+          <span class="info-key">Email</span>
+          <span class="info-val"><a href="mailto:neoseoulmixroom@gmail.com">neoseoulmixroom@gmail.com</a></span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">KakaoTalk</span>
+          <span class="info-val">https://open.kakao.com/o/s2Y9Yccf</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">วิธีการส่งไฟล์</span>
+          <span class="info-val">WeTransfer / Google Drive</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">ระยะเวลาการส่งไฟล์</span>
+          <span class="info-val">ภายใน 5-12วันทำการ</span>
+        </div>
+      </div>
+    </div>
+    <div class="form">
+      <div class="form-2col">
+        <div class="fg">
+          <label>ชื่อ</label>
+          <input type="text" id="fieldName" placeholder="Artist name">
+        </div>
+        <div class="fg">
+          <label>Email</label>
+          <input type="email" id="fieldEmail" placeholder="you@email.com">
+        </div>
+      </div>
+      <div class="fg">
+        <label>บริการ</label>
+        <select id="serviceSelect">
+          <option value="mix">มิกซ์ซิ่ง - ฿18,000</option>
+          <option value="master">มาสเตอร์ริ่ง - ฿4000</option>
+          <option value="both">มิกซ์ซิ่ง+มาสเตอริ่ง - ฿20,000</option>
+          <option value="tune">โวคอลทูนนิ่ง - ฿5000</option>
+        </select>
+      </div>
+      <div class="form-2col">
+        <div class="fg">
+          <label>เเนวเพลง</label>
+          <input type="text" id="fieldGenre" placeholder="K-Pop, Hip-Hop, R&amp;B">
+        </div>
+        <div class="fg">
+          <label>จำนวนของเเทร็ค</label>
+          <input type="number" id="fieldTracks" placeholder="1" min="1">
+        </div>
+      </div>
+      <div class="fg">
+        <label>รายละเอียดเพิ่มเติม</label>
+        <textarea rows="4" id="fieldMessage" placeholder="Reference tracks, deadline, notes..."></textarea>
+      </div>
+      <button class="btn-send" onclick="submitForm(this)">ส่ง</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a class="logo" href="#">Neoseoul Mixroom</a>
+  <p>2026 Neoseoul Mixroom</p>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModalDirect()">X</button>
+    <div class="modal-cover" id="modalCover"></div>
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-credit" id="modalCredit"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function switchTab(tab){
+  document.getElementById('tab-music').style.display=tab==='music'?'':'none';
+  document.getElementById('tab-commercial').style.display=tab==='commercial'?'':'none';
+  document.getElementById('ptab-music').classList.toggle('active',tab==='music');
+  document.getElementById('ptab-commercial').classList.toggle('active',tab==='commercial');
+}
+
+function showSkeleton(gridEl){
+  var html='';
+  for(var i=0;i<5;i++) html+='<div class="album-card"><div class="skeleton-cover"></div></div>';
+  gridEl.innerHTML=html;
+}
+
+function buildGrid(gridEl,items){
+  gridEl.innerHTML='';
+  if(!items.length){gridEl.innerHTML='<div class="empty-state">No items yet.</div>';return;}
+  items.forEach(function(a){
+    var card=document.createElement('div');
+    card.className='album-card';
+    var img=a.thumbnail?'<img src="'+a.thumbnail+'" alt="'+a.title+'">':'';
+    card.innerHTML='<div class="album-cover">'+img+
+      '<div class="album-hover">'+
+        '<div class="album-hover-title">'+a.title+'</div>'+
+        '<div class="album-hover-credit">'+(a.credit||'')+'</div>'+
+      '</div></div>';
+    card.addEventListener('click',function(){openModal(a);});
+    gridEl.appendChild(card);
+  });
+}
+
+function getYoutubeId(url){
+  if(!url) return null;
+  var match=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/);
+  return match?match[1]:null;
+}
+
+function openModal(a){
+  var cover=document.getElementById('modalCover');
+  var ytId=getYoutubeId(a.youtubeUrl);
+  if(ytId){
+    var thumb='https://img.youtube.com/vi/'+ytId+'/hqdefault.jpg';
+    cover.innerHTML=
+      '<img src="'+thumb+'" alt="'+a.title+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">'+
+      '<a href="'+a.youtubeUrl+'" target="_blank" rel="noopener" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-decoration:none;">'+
+        '<div style="width:64px;height:64px;background:rgba(255,0,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;" onmouseover="this.style.transform=\'scale(1.1)\'" onmouseout="this.style.transform=\'scale(1)\'">'+
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>'+
+        '</div>'+
+      '</a>';
+  } else if(a.cover&&a.coverType&&a.coverType.indexOf('video')===0){
+    cover.innerHTML='<video src="'+a.cover+'" controls autoplay muted playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"></video>';
+  } else if(a.cover){
+    cover.innerHTML='<img src="'+a.cover+'" alt="'+a.title+'">';
+  } else {
+    cover.innerHTML='';
+  }
+  document.getElementById('modalTitle').textContent=a.title;
+  document.getElementById('modalCredit').textContent=a.credit||'';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModalDirect(){
+  var v=document.querySelector('#modalCover video');
+  if(v) v.pause();
+  var f=document.querySelector('#modalCover iframe');
+  if(f) f.src='';
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function closeModal(e){
+  if(e.target===document.getElementById('modalOverlay')) closeModalDirect();
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModalDirect();});
+
+var AIRTABLE_BASE_ID='apphcvmlySPThF1EM';
+var AIRTABLE_TABLE='portfolio';
+var AIRTABLE_TOKEN='patjpuKTKJRbNmfq7.60bbecc1f984af0cd6b215bb01fc226402179243d37f68c796847e2c41b8e1de';
+
+async function loadPortfolio(){
+  var gm=document.getElementById('gridMusic');
+  var gc=document.getElementById('gridCommercial');
+  showSkeleton(gm); showSkeleton(gc);
+  try{
+    var url='https://api.airtable.com/v0/'+AIRTABLE_BASE_ID+'/'+encodeURIComponent(AIRTABLE_TABLE)+'?sort%5B0%5D%5Bfield%5D=order&sort%5B0%5D%5Bdirection%5D=asc';
+    var res=await fetch(url,{headers:{'Authorization':'Bearer '+AIRTABLE_TOKEN}});
+    if(!res.ok) throw new Error('Airtable '+res.status);
+    var data=await res.json();
+    var items=(data.records||[]).map(function(r){
+      return{
+        title:r.fields.title||'',
+        credit:r.fields.credit||'',
+        category:r.fields.category||'music',
+        thumbnail:(r.fields.thumbnail&&r.fields.thumbnail[0])?r.fields.thumbnail[0].url:null,
+        cover:(r.fields.cover&&r.fields.cover[0])?r.fields.cover[0].url:null,
+        coverType:(r.fields.cover&&r.fields.cover[0])?r.fields.cover[0].type:null,
+        youtubeUrl:r.fields.youtubeUrl||null
+      };
+    });
+    buildGrid(gm,items.filter(function(i){return i.category==='music';}));
+    buildGrid(gc,items.filter(function(i){return i.category==='commercial';}));
+  } catch(err){
+    console.error('Airtable error:',err.message);
+    buildGrid(document.getElementById('gridMusic'),[]);
+    buildGrid(document.getElementById('gridCommercial'),[]);
+  }
+}
+
+loadPortfolio();
+
+async function submitForm(btn){
+  var name=document.getElementById('fieldName').value.trim();
+  var email=document.getElementById('fieldEmail').value.trim();
+  var service=document.getElementById('serviceSelect').value;
+  var genre=document.getElementById('fieldGenre').value.trim();
+  var tracks=document.getElementById('fieldTracks').value.trim();
+  var message=document.getElementById('fieldMessage').value.trim();
+  
+  // 태국어 에러 메시지
+  if(!name||!email){
+    alert('กรุณากรอกชื่อและอีเมล');
+    return;
+  }
+  btn.textContent='...'; btn.disabled=true;
+  try{
+    var res=await fetch('https://formspree.io/f/mqeyedbn',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({name:name,email:email,service:service,genre:genre,tracks:tracks,message:message})
+    });
+    if(res.ok){
+      btn.textContent='ส่งสำเร็จ';
+      ['fieldName','fieldEmail','fieldGenre','fieldTracks','fieldMessage'].forEach(function(id){
+        document.getElementById(id).value='';
+      });
+    } else throw new Error('failed');
+  } catch(e){
+    // 태국어 전송 실패 메시지
+    btn.textContent='เกิดข้อผิดพลาด';
+    btn.disabled=false;
+  }
+}
+</script>
+</body>
+</html>
